@@ -36,9 +36,9 @@ class SupplierController extends Controller
 
             return $this->successResponse($supplier, 'Supplier created successfully', 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->errorResponse($e->errors(), 'Validation Error', 422);
+            return $this->validationErrorResponse($e->errors());
         } catch (\Exception $e) {
-            return $this->errorResponse('Server Error', $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 
@@ -50,12 +50,12 @@ class SupplierController extends Controller
         try {
             $data = Supplier::find($supplier);
             if (! $data) {
-                return $this->errorResponse('Supplier not found', null, 404);
+                return $this->notFoundResponse('Supplier not found');
             }
 
             return $this->successResponse($data, 'Supplier retrieved successfully');
         } catch (\Exception $e) {
-            return $this->errorResponse('Server Error', $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 
@@ -75,9 +75,9 @@ class SupplierController extends Controller
 
             return $this->successResponse($supplier, 'Supplier updated successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->errorResponse($e->errors(), 'Validation Error', 422);
+            return $this->validationErrorResponse($e->errors());
         } catch (\Exception $e) {
-            return $this->errorResponse('Server Error', $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 

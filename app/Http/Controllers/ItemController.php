@@ -38,9 +38,9 @@ class ItemController extends Controller
 
             return $this->successResponse($item, 'Item created successfully', 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->errorResponse($e->errors(), 'Validation Error 123', 422);
+            return $this->validationErrorResponse($e->errors());
         } catch (\Exception $e) {
-            return $this->errorResponse("Server Error", $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 
@@ -51,12 +51,13 @@ class ItemController extends Controller
     {
         try {
             $data = Item::find($item);
-            if (!$data) {
-                return $this->errorResponse('Item not found', 404);
+            if (! $data) {
+                return $this->notFoundResponse('Item not found');
             }
-            return $this->successResponse($item, 'Item retrieved successfully');
+
+            return $this->successResponse($data, 'Item retrieved successfully');
         } catch (\Exception $e) {
-            return $this->errorResponse("Server Error", $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 
@@ -80,9 +81,9 @@ class ItemController extends Controller
 
             return $this->successResponse($item, 'Item updated successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->errorResponse($e->errors(), 'Validation Error', 422);
+            return $this->validationErrorResponse($e->errors());
         } catch (\Exception $e) {
-            return $this->errorResponse("Server Error", $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 

@@ -38,9 +38,9 @@ class MovementController extends Controller
 
             return $this->successResponse($movement, 'Movement created successfully', 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->errorResponse($e->errors(), 'Validation Error', 422);
+            return $this->validationErrorResponse($e->errors());
         } catch (\Exception $e) {
-            return $this->errorResponse('Server Error', $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 
@@ -52,12 +52,12 @@ class MovementController extends Controller
         try {
             $data = Movement::find($movement);
             if (! $data) {
-                return $this->errorResponse('Movement not found', null, 404);
+                return $this->notFoundResponse('Movement not found');
             }
 
             return $this->successResponse($data, 'Movement retrieved successfully');
         } catch (\Exception $e) {
-            return $this->errorResponse('Server Error', $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 
@@ -79,9 +79,9 @@ class MovementController extends Controller
 
             return $this->successResponse($movement, 'Movement updated successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->errorResponse($e->errors(), 'Validation Error', 422);
+            return $this->validationErrorResponse($e->errors());
         } catch (\Exception $e) {
-            return $this->errorResponse('Server Error', $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 

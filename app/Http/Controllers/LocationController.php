@@ -35,9 +35,9 @@ class LocationController extends Controller
 
             return $this->successResponse($location, 'Location created successfully', 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->errorResponse($e->errors(), 'Validation Error', 422);
+            return $this->validationErrorResponse($e->errors());
         } catch (\Exception $e) {
-            return $this->errorResponse('Server Error', $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 
@@ -49,12 +49,12 @@ class LocationController extends Controller
         try {
             $data = Location::find($location);
             if (! $data) {
-                return $this->errorResponse('Location not found', null, 404);
+                return $this->notFoundResponse('Location not found');
             }
 
             return $this->successResponse($data, 'Location retrieved successfully');
         } catch (\Exception $e) {
-            return $this->errorResponse('Server Error', $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 
@@ -73,9 +73,9 @@ class LocationController extends Controller
 
             return $this->successResponse($location, 'Location updated successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return $this->errorResponse($e->errors(), 'Validation Error', 422);
+            return $this->validationErrorResponse($e->errors());
         } catch (\Exception $e) {
-            return $this->errorResponse('Server Error', $e->getMessage(), 500);
+            return $this->serverErrorResponse($e);
         }
     }
 
