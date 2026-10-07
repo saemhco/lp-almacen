@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,10 +16,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([
+            PermissionSeeder::class,
+            RoleSeeder::class,
+        ]);
+
         User::create([
             'name' => 'Admin 02',
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
+            'role_id' => Role::query()->where('name', 'admin')->value('id'),
         ]);
 
         $this->call([
