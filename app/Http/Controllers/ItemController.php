@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class ItemController extends Controller
 {
@@ -12,6 +13,14 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      */
+    #[OA\Get(
+        path: '/api/items',
+        summary: 'List items',
+        tags: ['Items'],
+        responses: [
+            new OA\Response(response: 200, description: 'Items retrieved successfully'),
+        ]
+    )]
     public function index()
     {
         $items = Item::all();
@@ -21,6 +30,30 @@ class ItemController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    #[OA\Post(
+        path: '/api/items',
+        summary: 'Create an item',
+        tags: ['Items'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name', 'price', 'quantity', 'category_id', 'supplier_id', 'location_id'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', maxLength: 255),
+                    new OA\Property(property: 'description', type: 'string', nullable: true),
+                    new OA\Property(property: 'price', type: 'number', format: 'float', minimum: 0),
+                    new OA\Property(property: 'quantity', type: 'integer', minimum: 0),
+                    new OA\Property(property: 'category_id', type: 'integer'),
+                    new OA\Property(property: 'supplier_id', type: 'integer'),
+                    new OA\Property(property: 'location_id', type: 'integer'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Item created successfully'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
     public function store(Request $request)
     {
         try {
@@ -47,6 +80,18 @@ class ItemController extends Controller
     /**
      * Display the specified resource.
      */
+    #[OA\Get(
+        path: '/api/items/{item}',
+        summary: 'Show an item',
+        tags: ['Items'],
+        parameters: [
+            new OA\Parameter(name: 'item', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Item retrieved successfully'),
+            new OA\Response(response: 404, description: 'Item not found'),
+        ]
+    )]
     public function show($item)
     {
         try {
@@ -64,6 +109,32 @@ class ItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    #[OA\Put(
+        path: '/api/items/{item}',
+        summary: 'Update an item',
+        tags: ['Items'],
+        parameters: [
+            new OA\Parameter(name: 'item', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', maxLength: 255),
+                    new OA\Property(property: 'description', type: 'string', nullable: true),
+                    new OA\Property(property: 'price', type: 'number', format: 'float', minimum: 0),
+                    new OA\Property(property: 'quantity', type: 'integer', minimum: 0),
+                    new OA\Property(property: 'category_id', type: 'integer'),
+                    new OA\Property(property: 'supplier_id', type: 'integer'),
+                    new OA\Property(property: 'location_id', type: 'integer'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Item updated successfully'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
     public function update(Request $request, Item $item)
     {
         try {
@@ -90,6 +161,17 @@ class ItemController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+    #[OA\Delete(
+        path: '/api/items/{item}',
+        summary: 'Delete an item',
+        tags: ['Items'],
+        parameters: [
+            new OA\Parameter(name: 'item', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Item deleted successfully'),
+        ]
+    )]
     public function destroy(Item $item)
     {
         $item->delete();

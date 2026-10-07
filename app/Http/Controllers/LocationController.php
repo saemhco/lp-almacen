@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Location;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class LocationController extends Controller
 {
@@ -13,6 +14,14 @@ class LocationController extends Controller
     /**
      * Display a listing of the resource.
      */
+    #[OA\Get(
+        path: '/api/locations',
+        summary: 'List locations',
+        tags: ['Locations'],
+        responses: [
+            new OA\Response(response: 200, description: 'Locations retrieved successfully'),
+        ]
+    )]
     public function index()
     {
         $locations = Location::all();
@@ -23,6 +32,25 @@ class LocationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    #[OA\Post(
+        path: '/api/locations',
+        summary: 'Create a location',
+        tags: ['Locations'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name', 'code'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', maxLength: 255),
+                    new OA\Property(property: 'code', type: 'string', maxLength: 255),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Location created successfully'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
     public function store(Request $request)
     {
         try {
@@ -44,6 +72,18 @@ class LocationController extends Controller
     /**
      * Display the specified resource.
      */
+    #[OA\Get(
+        path: '/api/locations/{location}',
+        summary: 'Show a location',
+        tags: ['Locations'],
+        parameters: [
+            new OA\Parameter(name: 'location', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Location retrieved successfully'),
+            new OA\Response(response: 404, description: 'Location not found'),
+        ]
+    )]
     public function show($location)
     {
         try {
@@ -61,6 +101,27 @@ class LocationController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    #[OA\Put(
+        path: '/api/locations/{location}',
+        summary: 'Update a location',
+        tags: ['Locations'],
+        parameters: [
+            new OA\Parameter(name: 'location', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', maxLength: 255),
+                    new OA\Property(property: 'code', type: 'string', maxLength: 255),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Location updated successfully'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
     public function update(Request $request, Location $location)
     {
         try {
@@ -82,6 +143,17 @@ class LocationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+    #[OA\Delete(
+        path: '/api/locations/{location}',
+        summary: 'Delete a location',
+        tags: ['Locations'],
+        parameters: [
+            new OA\Parameter(name: 'location', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Location deleted successfully'),
+        ]
+    )]
     public function destroy(Location $location)
     {
         $location->delete();

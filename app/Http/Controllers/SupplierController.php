@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Supplier;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class SupplierController extends Controller
 {
@@ -13,6 +14,14 @@ class SupplierController extends Controller
     /**
      * Display a listing of the resource.
      */
+    #[OA\Get(
+        path: '/api/suppliers',
+        summary: 'List suppliers',
+        tags: ['Suppliers'],
+        responses: [
+            new OA\Response(response: 200, description: 'Suppliers retrieved successfully'),
+        ]
+    )]
     public function index()
     {
         $suppliers = Supplier::all();
@@ -23,6 +32,26 @@ class SupplierController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    #[OA\Post(
+        path: '/api/suppliers',
+        summary: 'Create a supplier',
+        tags: ['Suppliers'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', maxLength: 255),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', nullable: true),
+                    new OA\Property(property: 'phone', type: 'string', nullable: true),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Supplier created successfully'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
     public function store(Request $request)
     {
         try {
@@ -45,6 +74,18 @@ class SupplierController extends Controller
     /**
      * Display the specified resource.
      */
+    #[OA\Get(
+        path: '/api/suppliers/{supplier}',
+        summary: 'Show a supplier',
+        tags: ['Suppliers'],
+        parameters: [
+            new OA\Parameter(name: 'supplier', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Supplier retrieved successfully'),
+            new OA\Response(response: 404, description: 'Supplier not found'),
+        ]
+    )]
     public function show($supplier)
     {
         try {
@@ -62,6 +103,28 @@ class SupplierController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    #[OA\Put(
+        path: '/api/suppliers/{supplier}',
+        summary: 'Update a supplier',
+        tags: ['Suppliers'],
+        parameters: [
+            new OA\Parameter(name: 'supplier', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', maxLength: 255),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', nullable: true),
+                    new OA\Property(property: 'phone', type: 'string', nullable: true),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Supplier updated successfully'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
     public function update(Request $request, Supplier $supplier)
     {
         try {
@@ -84,6 +147,17 @@ class SupplierController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+    #[OA\Delete(
+        path: '/api/suppliers/{supplier}',
+        summary: 'Delete a supplier',
+        tags: ['Suppliers'],
+        parameters: [
+            new OA\Parameter(name: 'supplier', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Supplier deleted successfully'),
+        ]
+    )]
     public function destroy(Supplier $supplier)
     {
         $supplier->delete();
