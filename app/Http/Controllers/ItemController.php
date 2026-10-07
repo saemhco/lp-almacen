@@ -29,6 +29,9 @@ class ItemController extends Controller
                 'description' => 'nullable|string',
                 'price' => 'required|numeric|min:0',
                 'quantity' => 'required|integer|min:0',
+                'category_id' => 'required|exists:categories,id',
+                'supplier_id' => 'required|exists:suppliers,id',
+                'location_id' => 'required|exists:locations,id',
             ]);
 
             $item = Item::create($validatedData);
@@ -68,6 +71,9 @@ class ItemController extends Controller
                 'description' => 'nullable|string',
                 'price' => 'sometimes|required|numeric|min:0',
                 'quantity' => 'sometimes|required|integer|min:0',
+                'category_id' => 'sometimes|required|exists:categories,id',
+                'supplier_id' => 'sometimes|required|exists:suppliers,id',
+                'location_id' => 'sometimes|required|exists:locations,id',
             ]);
 
             $item->update($validatedData);

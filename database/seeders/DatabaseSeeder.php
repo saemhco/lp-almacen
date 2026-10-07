@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Item;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -22,7 +21,13 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
-        $this->call(ItemSeeder::class);
+        $this->call([
+            CategorySeeder::class,
+            SupplierSeeder::class,
+            LocationSeeder::class,
+            ItemSeeder::class,
+            MovementSeeder::class,
+        ]);
 
         // User::factory(10)->create();
 

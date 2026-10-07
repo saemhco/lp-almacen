@@ -5,9 +5,14 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Tabla: usuarios (users).
+ * Persona que entra al sistema. Puede registrar los movimientos del almacén.
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -45,5 +50,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function movements(): HasMany
+    {
+        return $this->hasMany(Movement::class);
     }
 }
