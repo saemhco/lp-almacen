@@ -1,31 +1,66 @@
 # Almacén
 
-API REST en Laravel 12 para administrar ítems de un almacén: nombre, descripción, precio y cantidad. La base de datos local es SQLite.
+API REST en Laravel 12 para administrar un almacén. La base de datos local es SQLite. La documentación interactiva está en `/api/documentation`.
+
+## Flujo de la app
+
+El catálogo se arma antes que el inventario:
+
+1. Una **categoría** agrupa los productos (ferretería, pinturas, electricidad).
+2. Un **proveedor** es quien surte esos productos.
+3. Una **ubicación** dice en qué pasillo o bodega está el producto.
+4. Un **ítem** pertenece a una categoría, un proveedor y una ubicación. Guarda nombre, descripción, precio y cantidad.
+5. Un **movimiento** registra una entrada o una salida de un ítem: quién la hizo, la cantidad y una nota. La entrada inicial de cada ítem queda como carga de stock.
+6. Un **usuario** tiene un **rol**. El rol agrupa **permisos** con el nombre `recurso.accion`, por ejemplo `items.delete` o `movements.create`.
+
+Hoy las rutas responden sin pedir token. Sanctum ya está instalado y `User` puede comprobar un permiso con `hasPermission('items.create')`. El login y el middleware que usan esos permisos se arman en clase.
+
+Todas las respuestas JSON usan las mismas claves: `success`, `code`, `message` y `data`.
+
+## Roles y funciones
+
+La contraseña de los dos usuarios de prueba es `password`.
+
+| Rol | Usuario | Función |
+| --- | --- | --- |
+| `admin` | `admin@example.com` | Administra el catálogo y los movimientos. Tiene los 20 permisos: ver, crear, actualizar y eliminar ítems, categorías, proveedores, ubicaciones y movimientos. |
+| `almacenista` | `almacenista@example.com` | Consulta el almacén y registra entradas y salidas. Puede ver los cinco recursos y crear movimientos. No crea, ni edita, ni elimina el catálogo, y no modifica ni borra movimientos. |
+
+Permisos del almacenista:
+
+| Permiso | Qué permite |
+| --- | --- |
+| `items.view`, `categories.view`, `suppliers.view`, `locations.view`, `movements.view` | Listar y ver un registro |
+| `movements.create` | Registrar una entrada o una salida |
+
+El admin tiene esos mismos permisos y, además, `create`, `update` y `delete` de cada recurso.
 
 ## Qué creamos
 
 | Pieza | Archivo | Para qué |
 | --- | --- | --- |
 | Proyecto Laravel | raíz del repo | Esqueleto de la aplicación |
-| Migración `items` | `database/migrations/2026_09_30_133514_create_items_table.php` | Crea la tabla en la base de datos |
-| Modelo `Item` | `app/Models/Item.php` | Representa un ítem y permite guardarlo con Eloquent |
-| Factory | `database/factories/ItemFactory.php` | Genera ítems de prueba |
-| Seeder | `database/seeders/ItemSeeder.php` | Inserta datos iniciales de ítems |
-| Seeder principal | `database/seeders/DatabaseSeeder.php` | Crea el usuario admin y llama a `ItemSeeder` |
-| Controlador | `app/Http/Controllers/ItemController.php` | CRUD de la API |
+| Ítem | `app/Models/Item.php` | Producto del almacén |
+| Categoría, proveedor y ubicación | `app/Models/Category.php`, `Supplier.php`, `Location.php` | Datos a los que pertenece cada ítem |
+| Movimiento | `app/Models/Movement.php` | Entrada o salida de stock |
+| Rol y permiso | `app/Models/Role.php`, `Permission.php` | Qué puede hacer cada usuario |
+| Usuario | `app/Models/User.php` | Persona que entra al sistema y tiene un rol |
+| Seeders | `database/seeders/` | Cargan permisos, roles, usuarios, catálogo, ítems y movimientos |
+| Controladores | `app/Http/Controllers/` | CRUD de cada recurso |
 | Trait de respuestas | `app/Traits/ApiResponseTrait.php` | Formato JSON de éxito y error |
 | Rutas API | `routes/api.php` | Endpoints bajo `/api` |
-| Sanctum | `laravel/sanctum` y su migración | Tokens de acceso (aún no se usan en las rutas) |
+| Sanctum | `laravel/sanctum` | Tokens de acceso. Todavía no protegen las rutas |
+| Swagger | `darkaonline/l5-swagger` | Documenta los endpoints |
 
-Endpoints actuales (sin autenticación):
+Cada recurso tiene las mismas cinco rutas. `{id}` es el id del registro.
 
-| Método | Ruta | Acción |
+| Método | Rutas | Acción |
 | --- | --- | --- |
-| GET | `/api/items` | Listar |
-| POST | `/api/items` | Crear |
-| GET | `/api/items/{id}` | Ver uno |
-| PUT | `/api/items/{id}` | Actualizar |
-| DELETE | `/api/items/{id}` | Eliminar |
+| GET | `/api/items`, `/api/categories`, `/api/suppliers`, `/api/locations`, `/api/movements` | Listar |
+| POST | las mismas | Crear |
+| GET | `/api/{recurso}/{id}` | Ver uno |
+| PUT | `/api/{recurso}/{id}` | Actualizar |
+| DELETE | `/api/{recurso}/{id}` | Eliminar |
 
 ## Laravel
 
@@ -102,7 +137,7 @@ php artisan db:seed
 php artisan db:seed --class=ItemSeeder
 ```
 
-- `db:seed` corre `DatabaseSeeder` (usuario admin y luego `ItemSeeder`).
+- `db:seed` corre `DatabaseSeeder`: permisos, roles, usuario admin, categorías, proveedores, ubicaciones, ítems y movimientos. `RoleSeeder` también crea al usuario almacenista.
 - `--class` corre un seeder concreto.
 - Dentro del seeder, `Item::factory()->count(10)->create()` usa el factory para insertar 10 ítems falsos.
 
@@ -223,4 +258,4 @@ php artisan migrate --seed
 php artisan serve
 ```
 
-La API queda en `http://127.0.0.1:8000/api/items`.
+La API queda en `http://127.0.0.1:8000/api/items`. Swagger queda en `http://127.0.0.1:8000/api/documentation`.
